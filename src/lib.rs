@@ -1,4 +1,3 @@
-extern crate reqwest;
 extern crate toml;
 extern crate serde;
 extern crate serde_derive;
@@ -6,42 +5,16 @@ extern crate serde_json;
 
 use serde_derive::Deserialize;
 use serde_json::Value;
-use reqwest::{RequestBuilder, Client};
-use http::Method;
+use std::{fs, str, fmt};
 
-use std::{fs, str};
+mod linode;
+use linode::client::{Client,Domain};
 
 #[derive(Deserialize)]
 struct Config {
     api_token: String,
     soa_email: String,
     domain: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct DomainData {
-    id: u32,
-    r#type: String,
-    domain: String,
-    group: String,
-    status: String,
-    description: String,
-    soa_email: String,
-    retry_sec: u32,
-    master_ips: Vec<String>,
-    axfr_ips: Vec<String>,
-    expire_sec: u32,
-    refresh_sec: u32,
-    ttl_sec: u32,
-    tags: Vec<String>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Domains {
-    data: Vec<DomainData>,
-    page: u8,
-    pages: u8,
-    results: u8,
 }
 
 fn read_config(config_file: &str) -> Result<Config, String> {
@@ -58,24 +31,38 @@ fn read_config(config_file: &str) -> Result<Config, String> {
     }
 }
 
-pub fn run(config_file: &str) -> Result<(), Box<std::error::Error>> {
-    let api_url = "https://api.linode.com/v4";
+#[derive(Debug)]
+struct MyError(String);
+
+impl fmt::Display for MyError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "There is an error: {}", self.0)
+    }
+}
+
+impl std::error::Error for MyError {}
+
+pub fn run(config_file: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     let config = read_config(config_file)?;
 
-    let client = reqwest::Client::new();
+    let linode_client = linode::client::Client::new(config.api_token);
 
-    let domains: Domains = client.request(Method::GET, &format!("{}{}", api_url, "/domains"))
-        .bearer_auth(config.api_token)
-        .send()?
-        .json()?;
+    let domains = linode_client.list_domains()?;
 
-    print!("{:?}", domains);
-    // print!("{}", );
+    println!("# ----------------------- #");
+    let mut domain_data: Option<Domain> = None;
+    for d in domains {
+        if d.domain == config.domain {
+            domain_data = Some(d);
+        }
+    }
 
-    // for e in domains["data"] {
-    //     print!("{}", e);
-    // }
+    if domain_data.is_none() {
+        return Result::Err(Box::new(MyError(format!("Couldn't find domain '{}'", config.domain))));
+    }
+
+    print!("{}", domain_data.unwrap().domain);
 
     Ok(())
 }

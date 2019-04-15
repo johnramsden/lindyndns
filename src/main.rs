@@ -4,7 +4,6 @@ use clap::{Arg, App};
 
 use lindyndns::run;
 
-
 fn main() -> Result<(), Box<std::error::Error>> {
     let matches = App::new("lindyndns")
                     .version("0.0.0")
