@@ -3,10 +3,13 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
 
 use http::Method;
+
+use std::error::Error;
+use std::collections::HashMap;
 
 pub struct Client {
     api_token: String,
@@ -16,31 +19,43 @@ pub struct Client {
 
 #[derive(Deserialize, Debug)]
 struct DomainsResponse {
-    data: Vec<Domain>,
-    page: u8,
-    pages: u8,
-    results: u8,
+    #[serde(default)] data: Vec<Domain>,
+    #[serde(default)] page: u8,
+    #[serde(default)] pages: u8,
+    #[serde(default)] results: u8,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Domain {
-    // Required
-    pub id: u32,
+    // Required deserializing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<u32>,
     #[serde(rename = "type")]
     pub domain_type: String,
     pub domain: String,
     // Optional
-    #[serde(default)] pub group: String,
-    #[serde(default)] pub status: String,
-    #[serde(default)] pub description: String,
-    #[serde(default)] pub soa_email: String,
-    #[serde(default)] pub retry_sec: u32,
-    #[serde(default)] pub master_ips: Vec<String>,
-    #[serde(default)] pub axfr_ips: Vec<String>,
-    #[serde(default)] pub expire_sec: u32,
-    #[serde(default)] pub refresh_sec: u32,
-    #[serde(default)] pub ttl_sec: u32,
-    #[serde(default)] pub tags: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub group: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub soa_email: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retry_sec: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub master_ips: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub axfr_ips: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expire_sec: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub refresh_sec: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ttl_sec: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
 }
 
 impl Client {
@@ -52,19 +67,40 @@ impl Client {
         }
     }
 
-    pub fn list_domains(&self) -> Result<Vec<Domain>, Box<std::error::Error>> {
-        let domains: DomainsResponse = self.http_client.request(
-            Method::GET, &format!("{}{}", self.api_url, "/domains"))
+    pub fn list_domains(&self) -> Result<Vec<Domain>, Box<Error>> {
+        let mut page = 1;
+        let mut domains: Vec<Domain> = Vec::new();
+        loop {
+            let domains_page: DomainsResponse = self.http_client.request(
+                    Method::GET, &format!("{}{}", self.api_url, "/domains"))
                     .bearer_auth(&self.api_token)
-                    .send()?
-                    .json()?;
+                        .query(&[("page", page)])
+                        .send()?
+                        .json()?;
 
-        Ok(domains.data)
+            println!("Page {} of {}", page, domains_page.pages);
 
-        // match domains {
-        //     Err(d) => Err(format!("Failed to list domains")),
-        //     Ok(d) => Ok(d.data),
-        // }
+            domains.extend(domains_page.data);
+            if page < domains_page.pages {
+                page += 1;
+                continue;
+            }
+            break;
+        }
+
+        Ok(domains)
+    }
+
+    pub fn create_domain(&self, domain: &Domain) -> Result<Domain, Box<Error>> {
+
+        let domain_created: Domain = self.http_client.request(
+                Method::POST, &format!("{}{}", self.api_url, "/domains"))
+                    .bearer_auth(&self.api_token)
+                        .json(domain)
+                        .send()?
+                        .json()?;
+
+        Ok(domain_created)
     }
 
 }
