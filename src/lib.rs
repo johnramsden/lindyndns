@@ -77,19 +77,31 @@ pub fn run(config_file: &str) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    if domain_data.is_none() {
-        // Couldn't find domain, try to add it
-        let created_domain = linode_client.create_domain(&create_domain);
-        domain_data = match created_domain {
-            Ok(d) => Some(d),
-            Err(d) => return Result::Err(
-                Box::new(MyError(
-                    format!("{} '{}' {}\n{}\n{}", "Couldn't find domain", config.domain,
-                    "or create it.", "Create it manually or check token permissions.", d)))),
-        }
-    }
+    let domain_data = match domain_data {
+        Some(data) => data,
+        None => {
+            match linode_client.create_domain(&create_domain) {
+                Ok(d) => d,
+                Err(d) => return Err(
+                    Box::new(MyError(
+                        format!("{} '{}' \n{}\n{}", "Couldn't find or create domain",
+                        config.domain, "Create it manually or check token permissions.", d)))),
+            }
+        },
+    };
 
-    print!("{}", domain_data.unwrap().domain);
+    let records = match domain_data.id {
+        Some(id) => linode_client.list_records(&id),
+        None => return Err(Box::new(MyError(
+                        format!("{} '{}'.", "Missing domain id for", config.domain)))),
+    }?;
+    // let records = ;
+
+    print!("{:?}", records);
+
+    if records.is_empty() {
+        // Add entry
+    }
 
     Ok(())
 }
