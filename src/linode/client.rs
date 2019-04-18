@@ -138,21 +138,19 @@ impl Client {
 
     pub fn create_domain(&self, domain: &Domain) -> Result<Domain, Box<Error>> {
 
-        let domain_created: Domain = self.http_client.request(
-                Method::POST, &format!("{}{}", self.api_url, "/domains"))
-                    .bearer_auth(&self.api_token)
-                        .json(domain)
-                        .send()?
-                        .json()?;
+        let domain_json = serde_json::to_value(domain)?;
+
+        let domain_created: Domain = self.post(
+            "/domains", None, Some(&domain_json))?.json()?;
 
         Ok(domain_created)
     }
 
-    pub fn list_records(&self, domain_id: &String) -> Result<Vec<Record>, Box<Error>> {
+    pub fn list_records(&self, domain_id: &u32) -> Result<Vec<Record>, Box<Error>> {
 
         let mut page = 1;
         let mut records: Vec<Record> = Vec::new();
-        let req = &format!("{}{}{}{}", self.api_url, "/domains/", domain_id, "/records");
+        let req = &format!("{}{}{}", "/domains/", domain_id, "/records");
         loop {
             let rp: RecordResponse = self.get(req, Some(&[("page", &page.to_string())]))?.json()?;
 
@@ -182,6 +180,44 @@ impl Client {
         };
 
         let resp = builder_query.send()?;
+
+        Ok(resp)
+    }
+
+    fn put(&self, endpoint: &str, query: Option<&[(&str, &str)]>,
+           payload: Option<&Value>) -> Result<Response, Box<Error>> {
+        
+        let req = self.put_post_request(Method::PUT, endpoint, query, payload)?;
+
+        Ok(req)
+    }
+
+    fn post(&self, endpoint: &str, query: Option<&[(&str, &str)]>,
+           payload: Option<&Value>) -> Result<Response, Box<Error>> {
+        
+        let req = self.put_post_request(Method::POST, endpoint, query, payload)?;
+
+        Ok(req)
+    }
+
+    fn put_post_request(&self, method: Method, endpoint: &str,
+                        query: Option<&[(&str, &str)]>,
+                        payload: Option<&Value>) -> Result<Response, Box<Error>> {
+
+        let builder = self.http_client.request(method, endpoint)
+                                .bearer_auth(&self.api_token);
+
+        let builder = match payload {
+            Some(p) => builder.json(&Some([p])),
+            None => builder,
+        };
+
+        let builder = match query {
+            Some(q) => builder.query(&Some(q)),
+            None => builder,
+        };
+
+        let resp = builder.send()?;
 
         Ok(resp)
     }
