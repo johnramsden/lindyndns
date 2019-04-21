@@ -7,9 +7,10 @@ use serde_derive::Deserialize;
 use serde_json::Value;
 use std::{fs, str, fmt};
 use std::collections::HashMap;
+use std::error::Error;
 
 mod linode;
-use linode::client::{Client,Domain};
+use linode::client::{Domain,Record};
 
 #[derive(Deserialize)]
 struct Config {
@@ -43,11 +44,38 @@ impl fmt::Display for MyError {
 
 impl std::error::Error for MyError {}
 
-pub fn run(config_file: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn find_domain(client: &linode::client::Client, domains: Vec<Domain>,
+               create_domain: &Domain, config: &Config) -> Option<Domain> {
+
+    for d in domains {
+        println!("Found: {}", &d.domain);
+        if d.domain == config.domain {
+            println!("Matched: {}", &d.domain);
+            return Some(d);
+        }
+    }
+
+    None
+}
+
+fn find_record(records: Vec<Record>, record_type: &str,
+               record_name: &str) -> Option<Record> {
+
+    for r in records {
+        println!("{:?}", r);
+        if r.name == record_name && r.record_type == record_type {
+            return Some(r);
+        }
+    }
+
+    None
+}
+
+pub fn run(config_file: &str) -> Result<(), Box<dyn Error>> {
 
     let config = read_config(config_file)?;
 
-    let linode_client = linode::client::Client::new(config.api_token);
+    let linode_client = linode::client::Client::new(config.api_token.clone());
 
     let domains = linode_client.list_domains()?;
 
@@ -68,40 +96,49 @@ pub fn run(config_file: &str) -> Result<(), Box<dyn std::error::Error>> {
         tags: None,
     };
 
-    let mut domain_data: Option<Domain> = None;
-    for d in domains {
-        println!("Found: {}", &d.domain);
-        if d.domain == config.domain {
-            println!("Matched: {}", &d.domain);
-            domain_data = Some(d);
-        }
-    }
-
-    let domain_data = match domain_data {
+    let domain = find_domain(&linode_client, domains, &create_domain, &config);
+    let domain_data = match domain {
         Some(data) => data,
         None => {
             match linode_client.create_domain(&create_domain) {
                 Ok(d) => d,
-                Err(d) => return Err(
-                    Box::new(MyError(
-                        format!("{} '{}' \n{}\n{}", "Couldn't find or create domain",
-                        config.domain, "Create it manually or check token permissions.", d)))),
+                Err(d) => return Err(Box::new(MyError(
+                    format!("{} '{}' \n{}\n{}", "Couldn't find or create domain",
+                    config.domain, "Create it manually or check token permissions.", d)))),
             }
         },
     };
+
+    print!("{:?}", domain_data);
 
     let records = match domain_data.id {
         Some(id) => linode_client.list_records(&id),
         None => return Err(Box::new(MyError(
                         format!("{} '{}'.", "Missing domain id for", config.domain)))),
     }?;
-    // let records = ;
 
     print!("{:?}", records);
 
-    if records.is_empty() {
-        // Add entry
-    }
+    let record = Record {
+        id: None,
+        record_type: String::from("A"),
+        name: String::from(""),
+        target: Some(String::from("[remote_addr]")),
+        priority: None,
+        weight: None,
+        port: None,
+        service: None,
+        protocol: None,
+        ttl_sec: Some(300),
+        tag: None,
+    };
+
+    let record_found = match find_record(records, "A", "") {
+        Some(r) => linode_client.update_record(&record, &domain_data.id.unwrap(), &r.id.unwrap()),
+        None => linode_client.create_record(&record, &domain_data.id.unwrap()),
+    };
+
+    print!("{:?}", record_found);
 
     Ok(())
 }

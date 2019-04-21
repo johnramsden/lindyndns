@@ -83,7 +83,9 @@ pub struct Record {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weight: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub port: Option<String>,
+    pub port: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub protocol: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -138,12 +140,51 @@ impl Client {
 
     pub fn create_domain(&self, domain: &Domain) -> Result<Domain, Box<Error>> {
 
-        let domain_json = serde_json::to_value(domain)?;
+        let req = &format!("{}{}", self.api_url, "/domains/");
 
-        let domain_created: Domain = self.post(
-            "/domains", None, Some(&domain_json))?.json()?;
+        let domain_created: Domain = self.http_client.request(Method::POST, req)
+                        .bearer_auth(&self.api_token)
+                        .json(domain)
+                        .send()?
+                        .json()?;
 
         Ok(domain_created)
+    }
+
+    pub fn create_record(&self, record: &Record, domain_id: &u32) -> Result<Record, Box<Error>> {
+
+        println!("Create record");
+
+        let endpoint = format!("{}{}{}", "/domains/", domain_id, "/records");
+
+        let req = &format!("{}{}{}{}", self.api_url, "/domains/", domain_id, "/records");
+        println!("Request: {}", req);
+
+        let record_created: Record = self.http_client.request(Method::POST, req)
+                                .bearer_auth(&self.api_token)
+                                .json(record)
+                                .send()?
+                                .json()?;
+
+        println!("{:?}", record_created);
+
+        Ok(record_created)
+    }
+
+    pub fn update_record(&self, record: &Record, domain_id: &u32, record_id: &u32) -> Result<Record, Box<Error>> {
+
+        println!("Update record");
+
+        let req = &format!("{}{}{}{}{}", self.api_url, "/domains/", domain_id, "/records/", record_id);
+        println!("Request: {}", req);
+
+        let record_updated: Record = self.http_client.request(Method::PUT, req)
+                                .bearer_auth(&self.api_token)
+                                .json(record)
+                                .send()?
+                                .json()?;
+
+        Ok(record_updated)
     }
 
     pub fn list_records(&self, domain_id: &u32) -> Result<Vec<Record>, Box<Error>> {
@@ -184,43 +225,58 @@ impl Client {
         Ok(resp)
     }
 
-    fn put(&self, endpoint: &str, query: Option<&[(&str, &str)]>,
-           payload: Option<&Value>) -> Result<Response, Box<Error>> {
+    // fn put(&self, endpoint: &str, query: Option<&[(&str, &str)]>,
+    //        payload: Option<&Value>) -> Result<Response, Box<Error>> {
         
-        let req = self.put_post_request(Method::PUT, endpoint, query, payload)?;
+    //     let req = self.put_post_request(Method::PUT, endpoint, query, payload)?;
 
-        Ok(req)
-    }
+    //     println!("{:?}", req);
 
-    fn post(&self, endpoint: &str, query: Option<&[(&str, &str)]>,
-           payload: Option<&Value>) -> Result<Response, Box<Error>> {
+    //     Ok(req)
+    // }
+
+    // fn post(&self, endpoint: &str, query: Option<&[(&str, &str)]>,
+    //        payload: Option<&Value>) -> Result<Response, Box<Error>> {
         
-        let req = self.put_post_request(Method::POST, endpoint, query, payload)?;
+    //     let req = self.put_post_request(Method::POST, endpoint, query, payload)?;
+        
+    //     println!("{:?}", req);
 
-        Ok(req)
-    }
+    //     Ok(req)
+    // }
 
-    fn put_post_request(&self, method: Method, endpoint: &str,
-                        query: Option<&[(&str, &str)]>,
-                        payload: Option<&Value>) -> Result<Response, Box<Error>> {
+    // fn put_post_request(&self, method: Method, endpoint: &str,
+    //                     query: Option<&[(&str, &str)]>,
+    //                     payload: Option<&Value>) -> Result<Response, Box<Error>> {
 
-        let builder = self.http_client.request(method, endpoint)
-                                .bearer_auth(&self.api_token);
+    //     let req = &format!("{}{}", self.api_url, endpoint);
+    //     println!("Request: {}", req);
 
-        let builder = match payload {
-            Some(p) => builder.json(&Some([p])),
-            None => builder,
-        };
+    //     let builder = self.http_client.request(method, req)
+    //                             .bearer_auth(&self.api_token);
 
-        let builder = match query {
-            Some(q) => builder.query(&Some(q)),
-            None => builder,
-        };
+    //     let rec_p: Record = serde_json::from_value(payload.clone().unwrap().clone())?;
+    //     println!("Payload: {:?}", rec_p);
 
-        let resp = builder.send()?;
+    //     let builder = match payload {
+    //         Some(p) => builder.json(&[p]),
+    //         None => builder,
+    //     };
 
-        Ok(resp)
-    }
+    //     let builder = match query {
+    //         Some(q) => builder.query(&Some(q)),
+    //         None => builder,
+    //     };
+
+    //     let resp = builder.send()?;
+
+    //     // let r: Record = resp.json()?;
+
+    //     println!("Resp: {:?}", resp);
+    //     println!("Resp: {:?}", resp.status());
+
+    //     Ok(resp)
+    // }
 
 }
 
