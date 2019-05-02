@@ -8,6 +8,7 @@ use serde_json::Value;
 use std::{fs, str, fmt};
 use std::collections::HashMap;
 use std::error::Error;
+use std::path::PathBuf;
 
 mod linode;
 use linode::client::{Domain,Record};
@@ -19,7 +20,124 @@ struct Config {
     domain: String,
 }
 
+#[derive(Debug)]
+pub struct MyError(pub String);
+
+impl fmt::Display for MyError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "An error occurred: {}", self.0)
+    }
+}
+
+impl std::error::Error for MyError {}
+
+// TODO
+fn find_config_windows() -> Option<PathBuf> {
+    let config_location = PathBuf::new();
+
+    Some(config_location)
+}
+
+fn find_user_config_unix() -> Option<PathBuf> {
+    let config_path: Option<PathBuf> = match std::env::var("XDG_CONFIG_HOME") {
+        Ok(val) => {
+            let cfg_entry = [val.as_str(), "lindyndns", "config.toml"];
+            let path: PathBuf = cfg_entry.iter().collect();
+            if path.exists() {
+                return Some(path);
+            }
+
+            None
+        },
+        Err(val) => {
+            match std::env::var("HOME") {
+                Ok(h) => {
+                    let cfg_entry = [
+                        h.as_str(), ".config", "lindyndns", "config.toml"
+                    ];
+                    let path: PathBuf = cfg_entry.iter().collect();
+                    if path.exists() {
+                        return Some(path);
+                    }
+
+                    None
+                },
+                Err(h) => None,
+            }
+        }
+    };
+
+    config_path
+}
+
+fn find_system_config_unix() -> Option<PathBuf> {
+    let config_path: Option<PathBuf> = match std::env::var("XDG_DATA_DIRS") {
+        Ok(val) => {
+            let mut directory_it = val.split(":");
+            for e in directory_it {
+                let cfg_entry = [e, "lindyndns", "config.toml"];
+                let path: PathBuf = cfg_entry.iter().collect();
+                if path.exists() {
+                    return Some(path);
+                }
+            }
+
+            let cfg_entry = ["/", "etc", "xdg", "lindyndns", "config.toml"];
+            let path: PathBuf = cfg_entry.iter().collect();
+
+            if path.exists() {
+                return Some(path);
+            }
+
+            None
+        },
+        Err(val) => {
+            let cfg_entry = ["/", "etc", "xdg", "lindyndns", "config.toml"];
+            let path: PathBuf = cfg_entry.iter().collect();
+
+            if path.exists() {
+                return Some(path);
+            }
+
+            None
+        }
+    };
+
+    config_path
+}
+fn find_config_unix() -> Option<PathBuf> {
+
+    let config_path: Option<PathBuf> = match find_user_config_unix() {
+        Some(val) => Some(val),
+        None => find_system_config_unix(),
+    };
+
+    config_path
+}
+
+// TODO
+fn find_config_macos() -> Option<PathBuf> {
+    let config_location = PathBuf::new();
+
+    Some(config_location)
+}
+
+pub fn find_config() -> Result<Option<PathBuf>, Box<Error>> {
+    let config_location = if cfg!(target_os = "windows") {
+        find_config_windows()
+    } else if cfg!(target_os = "macos") {
+        find_config_macos()
+    } else {
+        find_config_unix()
+    };
+
+    Ok(config_location)
+}
+
 fn read_config(config_file: &str) -> Result<Config, String> {
+
+    // println!("{:?}", find_config());
+
     let file_data = match fs::read(&config_file) {
         Ok(f) => f,
         Err(f) => {
@@ -32,17 +150,6 @@ fn read_config(config_file: &str) -> Result<Config, String> {
         Err(f) => Err(format!("There was a problem parsing config file, {}", f)),
     }
 }
-
-#[derive(Debug)]
-struct MyError(String);
-
-impl fmt::Display for MyError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "An error occurred: {}", self.0)
-    }
-}
-
-impl std::error::Error for MyError {}
 
 fn find_domain(client: &linode::client::Client, domains: Vec<Domain>,
                create_domain: &Domain, config: &Config) -> Option<Domain> {
@@ -71,7 +178,7 @@ fn find_record(records: Vec<Record>, record_type: &str,
     None
 }
 
-pub fn run(config_file: &str) -> Result<(), Box<dyn Error>> {
+pub fn run(config_file: &str) -> Result<(), Box<Error>> {
 
     let config = read_config(config_file)?;
 
