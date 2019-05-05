@@ -1,0 +1,6 @@
+[Unit]
+Description=Run Linode Dynamic DNS client
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/lindyndns
