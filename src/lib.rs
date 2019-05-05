@@ -4,9 +4,7 @@ extern crate serde_derive;
 extern crate serde_json;
 
 use serde_derive::Deserialize;
-use serde_json::Value;
 use std::{fs, str, fmt};
-use std::collections::HashMap;
 use std::error::Error;
 use std::path::PathBuf;
 
@@ -31,80 +29,76 @@ impl fmt::Display for MyError {
 
 impl std::error::Error for MyError {}
 
-// TODO
-fn find_config_windows() -> Option<PathBuf> {
-    let config_location = PathBuf::new();
+fn find_config_from_env(env: &str, suffix: &Vec<&str>) -> Option<PathBuf> {
+    match std::env::var(env) {
+        Ok(val) => {
+            let mut cfg_entry = vec![val.as_str()];
+            cfg_entry.extend(suffix);
+            let path: PathBuf = cfg_entry.iter().collect();
+            if path.exists() {
+                return Some(path);
+            }
 
-    Some(config_location)
+            None
+        },
+        Err(_v) => None,
+    }
+}
+
+// TODO: Test
+fn find_config_windows() -> Option<PathBuf> {
+    let suffix = vec!["lindyndns", "config.toml"];
+
+    let config_location = match find_config_from_env("LOCALAPPDATA", &suffix) {
+        Some(val) => Some(val),
+        None => find_config_from_env("APPDATA", &suffix),
+    };
+
+    config_location
 }
 
 fn find_user_config_unix() -> Option<PathBuf> {
-    let config_path: Option<PathBuf> = match std::env::var("XDG_CONFIG_HOME") {
-        Ok(val) => {
-            let cfg_entry = [val.as_str(), "lindyndns", "config.toml"];
-            let path: PathBuf = cfg_entry.iter().collect();
-            if path.exists() {
-                return Some(path);
-            }
+    let suffix = vec!["lindyndns", "config.toml"];
+    let config_path = match find_config_from_env("XDG_CONFIG_HOME", &suffix) {
+        Some(val) => Some(val),
+        None => {
+            let mut cfg_suffix = vec![".config"];
+            cfg_suffix.extend(&suffix);
 
-            None
-        },
-        Err(val) => {
-            match std::env::var("HOME") {
-                Ok(h) => {
-                    let cfg_entry = [
-                        h.as_str(), ".config", "lindyndns", "config.toml"
-                    ];
-                    let path: PathBuf = cfg_entry.iter().collect();
-                    if path.exists() {
-                        return Some(path);
-                    }
-
-                    None
-                },
-                Err(h) => None,
-            }
+            find_config_from_env("HOME", &cfg_suffix)
         }
     };
 
     config_path
+}
+
+fn check_path_exists(path: Vec<&str>) -> Option<PathBuf> {
+    let path_buffer: PathBuf = path.iter().collect();
+    if path_buffer.exists() {
+        return Some(path_buffer);
+    }
+    None
 }
 
 fn find_system_config_unix() -> Option<PathBuf> {
+    let default_path = vec!["/", "etc", "xdg", "lindyndns", "config.toml"];
     let config_path: Option<PathBuf> = match std::env::var("XDG_DATA_DIRS") {
         Ok(val) => {
-            let mut directory_it = val.split(":");
+            let directory_it = val.split(":");
             for e in directory_it {
-                let cfg_entry = [e, "lindyndns", "config.toml"];
-                let path: PathBuf = cfg_entry.iter().collect();
-                if path.exists() {
-                    return Some(path);
+                let p = check_path_exists(vec![e, "lindyndns", "config.toml"]);
+                if p.is_some() {
+                    return p;
                 }
             }
-
-            let cfg_entry = ["/", "etc", "xdg", "lindyndns", "config.toml"];
-            let path: PathBuf = cfg_entry.iter().collect();
-
-            if path.exists() {
-                return Some(path);
-            }
-
-            None
+            check_path_exists(default_path)
         },
-        Err(val) => {
-            let cfg_entry = ["/", "etc", "xdg", "lindyndns", "config.toml"];
-            let path: PathBuf = cfg_entry.iter().collect();
-
-            if path.exists() {
-                return Some(path);
-            }
-
-            None
-        }
+        Err(_v) => check_path_exists(default_path),
     };
 
     config_path
 }
+
 fn find_config_unix() -> Option<PathBuf> {
 
     let config_path: Option<PathBuf> = match find_user_config_unix() {
@@ -151,13 +145,10 @@ fn read_config(config_file: &str) -> Result<Config, String> {
     }
 }
 
-fn find_domain(client: &linode::client::Client, domains: Vec<Domain>,
-               create_domain: &Domain, config: &Config) -> Option<Domain> {
+fn find_domain(domains: Vec<Domain>, config: &Config) -> Option<Domain> {
 
     for d in domains {
-        println!("Found: {}", &d.domain);
         if d.domain == config.domain {
-            println!("Matched: {}", &d.domain);
             return Some(d);
         }
     }
@@ -169,7 +160,6 @@ fn find_record(records: Vec<Record>, record_type: &str,
                record_name: &str) -> Option<Record> {
 
     for r in records {
-        println!("{:?}", r);
         if r.name == record_name && r.record_type == record_type {
             return Some(r);
         }
@@ -203,7 +193,7 @@ pub fn run(config_file: &str) -> Result<(), Box<Error>> {
         tags: None,
     };
 
-    let domain = find_domain(&linode_client, domains, &create_domain, &config);
+    let domain = find_domain(domains, &config);
     let domain_data = match domain {
         Some(data) => data,
         None => {
@@ -216,15 +206,11 @@ pub fn run(config_file: &str) -> Result<(), Box<Error>> {
         },
     };
 
-    print!("{:?}", domain_data);
-
     let records = match domain_data.id {
         Some(id) => linode_client.list_records(&id),
         None => return Err(Box::new(MyError(
                         format!("{} '{}'.", "Missing domain id for", config.domain)))),
     }?;
-
-    print!("{:?}", records);
 
     let record = Record {
         id: None,
@@ -240,12 +226,27 @@ pub fn run(config_file: &str) -> Result<(), Box<Error>> {
         tag: None,
     };
 
-    let record_found = match find_record(records, "A", "") {
-        Some(r) => linode_client.update_record(&record, &domain_data.id.unwrap(), &r.id.unwrap()),
-        None => linode_client.create_record(&record, &domain_data.id.unwrap()),
-    };
+    match find_record(records, "A", "") {
+        Some(r) => {
+            match linode_client.update_record(
+                &record, &domain_data.id.unwrap(), &r.id.unwrap()) {
+                Ok(r) => {
+                    println!("{}", r.target.unwrap());
+                    Ok(())
+                },
+                Err(_r) => Err(Box::new(MyError("Failed record update".to_string()))),
+            }
+        },
+        None => {
+            match linode_client.create_record(&record, &domain_data.id.unwrap()) {
+                Ok(r) => {
+                    println!("{}", r.target.unwrap());
+                    Ok(())
+                },
+                Err(_r) => Err(Box::new(MyError("Failed to create record".to_string()))),
+            }
+        },
+    }
 
-    print!("{:?}", record_found);
 
-    Ok(())
 }
