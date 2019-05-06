@@ -1,12 +1,20 @@
 #!/bin/sh
 
-linux() {
-    mkdir -p ~/.config/lindyndns/
-    cat << EOF > ~/.config/lindyndns/config.toml
+set -o errexit
+
+create_config() {
+    config="${1}"
+    cat << EOF > "${config}"
 api_token = "${API_KEY}"
 domain = "${TRAVIS_OS_NAME}.${DOMAIN}"
 soa_email = "${EMAIL}"
 EOF
+}
+
+linux() {
+    config_prefix="${HOME}/.config/lindyndns"
+    mkdir -p "${config_prefix}"
+    create_config "${config_prefix}/config.toml"
 }
 
 osx() {
@@ -14,19 +22,18 @@ osx() {
     launch_daemons='/Library/LaunchDaemons'
 
     sudo cp "packaging/macos/${plist}" "${launch_daemons}"
-
     sudo launchctl load "${launch_daemons}/${plist}"
 
-    mkdir -p ~/Library/Preferences/lindyndns/
-    cat << EOF > ~/Library/Preferences/lindyndns/config.toml
-api_token = "${API_KEY}"
-domain = "${TRAVIS_OS_NAME}.${DOMAIN}"
-soa_email = "${EMAIL}"
-EOF
+    config_prefix="${HOME}/Library/Preferences/lindyndns"
+    mkdir -p "${config_prefix}"
+
+    create_config "${config_prefix}/config.toml"
 }
 
 windows() {
-    true
+    config_prefix="${LOCALAPPDATA}"'\lindyndns'
+    mkdir -p "${config_prefix}"
+    create_config "${config_prefix}"'\config.toml'
 }
 
 test() {
