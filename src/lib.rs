@@ -57,12 +57,13 @@ fn find_config_windows() -> Option<PathBuf> {
     config_location
 }
 
-fn find_user_config_unix() -> Option<PathBuf> {
+fn find_user_config_unix(suffix_directory: &Vec<&str>) -> Option<PathBuf> {
     let suffix = vec!["lindyndns", "config.toml"];
     let config_path = match find_config_from_env("XDG_CONFIG_HOME", &suffix) {
         Some(val) => Some(val),
         None => {
-            let mut cfg_suffix = vec![".config"];
+            let mut cfg_suffix: Vec<&str> = Vec::new();
+            cfg_suffix.extend(suffix_directory);
             cfg_suffix.extend(&suffix);
 
             find_config_from_env("HOME", &cfg_suffix)
@@ -80,8 +81,11 @@ fn check_path_exists(path: Vec<&str>) -> Option<PathBuf> {
     None
 }
 
-fn find_system_config_unix() -> Option<PathBuf> {
-    let default_path = vec!["/", "etc", "xdg", "lindyndns", "config.toml"];
+fn find_system_config_unix(prefix_directory: &Vec<&str>) -> Option<PathBuf> {
+    let mut default_path: Vec<&str> = Vec::new();
+    default_path.extend(prefix_directory);
+    default_path.extend(&vec!["lindyndns", "config.toml"]);
+
     let config_path: Option<PathBuf> = match std::env::var("XDG_DATA_DIRS") {
         Ok(val) => {
             let directory_it = val.split(":");
@@ -101,19 +105,28 @@ fn find_system_config_unix() -> Option<PathBuf> {
 
 fn find_config_unix() -> Option<PathBuf> {
 
-    let config_path: Option<PathBuf> = match find_user_config_unix() {
+    let config_path: Option<PathBuf> = match find_user_config_unix(&vec![".config"]) {
         Some(val) => Some(val),
-        None => find_system_config_unix(),
+        None => find_system_config_unix(&vec!["/", "etc", "xdg"]),
     };
 
     config_path
 }
 
 // TODO
+// XDG_CONFIG_HOME -> ~/Library/Preferences/
+// System-wide -> /Library/Preferences/
 fn find_config_macos() -> Option<PathBuf> {
-    let config_location = PathBuf::new();
+    let suffix = vec!["lindyndns", "config.toml"];
 
-    Some(config_location)
+    let user_config = find_user_config_unix(&vec!["Library", "Preferences"]);
+    let config_path: Option<PathBuf> = match user_config {
+        Some(val) => Some(val),
+        None => find_system_config_unix(&vec!["/", "Library", "Preferences"]),
+    };
+
+    config_path
+
 }
 
 pub fn find_config() -> Result<Option<PathBuf>, Box<Error>> {
