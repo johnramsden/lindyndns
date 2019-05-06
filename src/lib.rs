@@ -113,12 +113,9 @@ fn find_config_unix() -> Option<PathBuf> {
     config_path
 }
 
-// TODO
 // XDG_CONFIG_HOME -> ~/Library/Preferences/
 // System-wide -> /Library/Preferences/
 fn find_config_macos() -> Option<PathBuf> {
-    let suffix = vec!["lindyndns", "config.toml"];
-
     let user_config = find_user_config_unix(&vec!["Library", "Preferences"]);
     let config_path: Option<PathBuf> = match user_config {
         Some(val) => Some(val),
@@ -212,9 +209,9 @@ pub fn run(config_file: &str) -> Result<(), Box<Error>> {
         None => {
             match linode_client.create_domain(&create_domain) {
                 Ok(d) => d,
-                Err(d) => return Err(Box::new(MyError(
-                    format!("{} '{}' \n{}\n{}", "Couldn't find or create domain",
-                    config.domain, "Create it manually or check token permissions.", d)))),
+                Err(_d) => return Err(Box::new(MyError(
+                    format!("{} '{}' \n{}", "Couldn't find or create domain",
+                    config.domain, "Create it manually or check token permissions.")))),
             }
         },
     };

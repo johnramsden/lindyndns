@@ -49,5 +49,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
     };
 
-    run(config_file)
+    match run(config_file) {
+        Err(e) => {
+            eprintln!("{}", e.to_string());
+            process::exit(1);
+        },
+        Ok(_e) => Ok(())
+    }
 }
