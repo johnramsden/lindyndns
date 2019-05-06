@@ -5,7 +5,10 @@ linux() {
     cp "packaging/linux/${PROJECT_NAME}.timer" "${staging}"
 }
 
-osx() { true; }
+osx() {
+    true
+}
+
 windows() { true; }
 
 main() {
@@ -13,18 +16,16 @@ main() {
     tag=""
     if [ -n "${TRAVIS_TAG}" ]; then tag="-${TRAVIS_TAG}"; fi
     name="${PROJECT_NAME}${tag}-${TARGET}"
-    staging="${tmpdir}/${name}"
+    staging="${tmpdir}/${PROJECT_NAME}"
 
     out_dir="$(pwd)/deployment"
     mkdir -p "${out_dir}" "${staging}"
-
-    find "target/${TARGET}/release/"
 
     cp "target/${TARGET}/release/${PROJECT_NAME}" "${staging}/"
 
     "${TRAVIS_OS_NAME}"
 
-    (cd "${tmpdir}" && tar czf "${out_dir}/${name}.tar.gz" "${name}")
+    (cd "${tmpdir}" && tar czf "${out_dir}/${name}.tar.gz" "${PROJECT_NAME}")
     rm -rf "${tmpdir}"
 }
 
