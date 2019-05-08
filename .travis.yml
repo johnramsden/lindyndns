@@ -21,11 +21,12 @@ matrix:
     env: TARGET=x86_64-pc-windows-msvc
     sudo: required
 script:
-- ".travis/build.sh"
-- ".travis/test.sh"
+  - ".travis/build.sh"
+  - ".travis/test.sh"
 before_deploy:
-- ".travis/package.sh"
-- export RELEASE="$(ls deployment/*)"
+  - ".travis/package.sh"
+  - export RELEASE="$(ls deployment/*)"
+  - export TRAVIS_TAG="preview"
 cache:
   directories:
     - "${HOME}/.cargo"
@@ -33,9 +34,10 @@ before_cache:
   - rm -rf "${HOME}/.cargo/registry"
 deploy:
   provider: releases
-  draft: true
   file: "${RELEASE}"
   skip_cleanup: true
+  overwrite: true
+  draft: true
   on:
     branch: master
   api_key:

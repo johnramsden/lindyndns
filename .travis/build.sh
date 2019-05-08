@@ -24,7 +24,7 @@ main() {
     install_rustup
     install_targets
 
-    "${CARGO}" build --target "${TARGET}" --verbose --release
+    "${CARGO}" build --target "${TARGET}" --release --color=always # --verbose
 }
 
 main
