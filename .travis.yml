@@ -21,10 +21,10 @@ matrix:
     env: TARGET=x86_64-pc-windows-msvc
     sudo: required
 script:
-  - ".travis/build.sh"
-  - ".travis/test.sh"
+  - "ci/build.sh"
+  - "ci/test.sh"
 before_deploy:
-  - ".travis/package.sh"
+  - "ci/package.sh"
   - export RELEASE="$(ls deployment/*)"
   - export TRAVIS_TAG="preview"
 cache:
