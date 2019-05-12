@@ -1,0 +1,9 @@
+distribution_style: false
+identifier: ca.johnramsden.pkg.lindyndns
+install_location: /
+name: lindyndns-x86_64-apple-darwin-${version}.pkg
+ownership: recommended
+postinstall_action: none
+preserve_xattr: false
+suppress_bundle_relocation: true
+version: '0.0.0'

@@ -25,7 +25,6 @@ script:
   - "ci/test.sh"
 before_deploy:
   - "ci/package.sh"
-  - export RELEASE="$(ls deployment/*)"
   - export TRAVIS_TAG="preview"
 cache:
   directories:
@@ -34,7 +33,8 @@ before_cache:
   - rm -rf "${HOME}/.cargo/registry"
 deploy:
   provider: releases
-  file: "${RELEASE}"
+  file_glob: true
+  file: deployment/*
   skip_cleanup: true
   overwrite: true
   draft: true
