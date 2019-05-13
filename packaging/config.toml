@@ -1,0 +1,6 @@
+## Default config file, uncomment and fill in variables
+## Variables must be quoted
+
+#api_token = ""
+#domain = ""
+#soa_email = ""

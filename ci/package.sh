@@ -49,7 +49,10 @@ osx() {
     cp lindyndns/build/* "${out_dir}"
 }
 
-windows() { true; }
+windows() {
+    choco install wixtoolset -y
+    
+}
 
 main() {
     cp "target/${TARGET}/release/${PROJECT_NAME}" "${staging}/"

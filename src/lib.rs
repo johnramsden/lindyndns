@@ -45,7 +45,8 @@ fn find_config_from_env(env: &str, suffix: &Vec<&str>) -> Option<PathBuf> {
     }
 }
 
-// TODO: Test
+// XDG_CONFIG_HOME -> %LOCALAPPDATA%
+// System-wide -> %APPDATA%
 fn find_config_windows() -> Option<PathBuf> {
     let suffix = vec!["lindyndns", "config.toml"];
 
