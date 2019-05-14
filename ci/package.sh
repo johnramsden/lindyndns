@@ -6,8 +6,7 @@ set -e
 
 tmpdir="$(mktemp -d)"
 
-tag=""
-[ -n "${TRAVIS_TAG}" ] && tag="-${TRAVIS_TAG}"
+[ -n "${TRAVIS_TAG}" ] && tag="-${TRAVIS_TAG}" || tag=""
 
 name="${PROJECT_NAME}${tag}-${TARGET}"
 staging="${tmpdir}/${PROJECT_NAME}"
@@ -20,6 +19,8 @@ mkdir -p "${out_dir}" "${staging}"
 linux() {
     cp "packaging/linux/${PROJECT_NAME}.service" "${staging}"
     cp "packaging/linux/${PROJECT_NAME}.timer" "${staging}"
+
+    (cd "${tmpdir}" && tar czf "${out_dir}/${name}.tar.gz" "${PROJECT_NAME}")
 }
 
 osx() {
@@ -47,19 +48,19 @@ osx() {
     )
 
     cp lindyndns/build/* "${out_dir}"
+
+    (cd "${tmpdir}" && tar czf "${out_dir}/${name}.tar.gz" "${PROJECT_NAME}")
 }
 
 windows() {
-    choco install wixtoolset -y
-    
+    (cd "${tmpdir}" && 7z a -tzip  "${out_dir}/${name}.zip" "${PROJECT_NAME}")
 }
 
 main() {
     cp "target/${TARGET}/release/${PROJECT_NAME}" "${staging}/"
 
     "${TRAVIS_OS_NAME}"
-
-    (cd "${tmpdir}" && tar czf "${out_dir}/${name}.tar.gz" "${PROJECT_NAME}")
+    
     rm -rf "${tmpdir}"
 }
 

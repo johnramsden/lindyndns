@@ -8,18 +8,18 @@ env:
   - secure: VTycFtwBoj8oQJoqCt/jjdT0GNoUROk2imK/V4k0is+6kFWNesc9q8JAoB9kxaGWU40mLz4TMot+zSbuUMUHXks+UtVOIpKkiocRVWXRWF0ROLHMeJVJj2UI2D7HzUio9mL+Omkx2aQsUff1yguhvbvarXQr7i3r6OqzCgQ+5fZXj3AHUrVGak+MurKgRnA7yKPlFaAi0WqMrB8Hsmr44T3f4NyZrRzzrhXaCi2VRodFQq0A7cXIbqmqd8wCrzgfERgPZQacYGSTNhXFhYbMCdgNHoZDLcFOvYCgrswOjSNIj+G+25SOXszedqtj2HSKjgvffXoTgCSojSGfpM4zk5vlxd9i4Y/+yhiB07zYeeWu+ejBGHj1wXDKuWXWO1WXR+kcCqzX3Z0bvA1f5gZByXHq7eOqYcR1oU3er8hli4HS8DA7Xmi//NdRxWf+Fzy5kT5wvuT1VjMjouPQiDP/uJ49RCEhLJplzj05PcwBhPg6pZT2WuTPi6CstBS9Yf/++WVru0mQ/JJJmJcOUf8UM1KzAnIFOuwGDjFnhBM+v2ZG+fBLMs2sGIZjDB9i8FFsWMfKzxzJ9hg+OYX11VC2rBI1z6M2RUSZcN+jAxJNv7gdw9KspdX3tw3QQzJieeGbirnO7ILaEauAuxHX986LKXGbKBmF+bUmuBPwl10DDnM=
 matrix:
   include:
-  - os: linux
-    dist: xenial
-    rust: nightly
-    env: TARGET=x86_64-unknown-linux-gnu
-  - os: osx
-    rust: nightly
-    env: TARGET=x86_64-apple-darwin
-    sudo: required
-  - os: windows
-    rust: nightly
-    env: TARGET=x86_64-pc-windows-msvc
-    sudo: required
+    - os: windows
+      rust: nightly
+      env: TARGET=x86_64-pc-windows-msvc
+      sudo: required
+    - os: linux
+      dist: xenial
+      rust: nightly
+      env: TARGET=x86_64-unknown-linux-gnu
+    - os: osx
+      rust: nightly
+      env: TARGET=x86_64-apple-darwin
+      sudo: required
 script:
   - "ci/build.sh"
   - "ci/test.sh"
