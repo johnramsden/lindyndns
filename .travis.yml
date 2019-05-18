@@ -12,6 +12,10 @@ matrix:
       rust: nightly
       env: TARGET=x86_64-pc-windows-msvc
       sudo: required
+    - os: windows
+      rust: nightly
+      env: TARGET=i686-pc-windows-msvc
+      sudo: required
     - os: linux
       dist: xenial
       rust: nightly
