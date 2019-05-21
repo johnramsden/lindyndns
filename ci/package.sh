@@ -6,7 +6,7 @@ set -e
 
 tmpdir="$(mktemp -d)"
 
-[ -n "${TRAVIS_TAG}" ] && tag="-${TRAVIS_TAG}" || tag=""
+[ -n "${TRAVIS_TAG}" ] && tag="-${TRAVIS_TAG}" || tag="-0.0.0"
 
 name="${PROJECT_NAME}${tag}-${TARGET}"
 staging="${tmpdir}/${PROJECT_NAME}"
@@ -57,14 +57,29 @@ osx() {
 }
 
 windows() {
-    (cd "${tmpdir}" && 7z a -tzip  "${out_dir}/${name}.zip" "${PROJECT_NAME}")
+    echo "Installing nsis"
+    choco install nsis --yes
+
+    cp -r "packaging/windows/nsis" "${tmpdir}"
+
+    (
+        cd "${tmpdir}"
+        cp "${PROJECT_NAME}/"* "nsis"
+
+        7z a -tzip  "${out_dir}/${name}.zip" "${PROJECT_NAME}"
+        
+        cd "nsis"
+        makensis.exe "installer_${TARGET_ARCH}.nsi"
+        cp "lindyndns_setup_${TARGET_ARCH}.exe" "${out_dir}"
+    )
+
 }
 
 main() {
     cp "target/${TARGET}/release/${PROJECT_NAME}" "${staging}/"
 
     "${TRAVIS_OS_NAME}"
-    
+
     rm -rf "${tmpdir}"
 }
 

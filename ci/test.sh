@@ -6,7 +6,7 @@ create_config() {
     config="${1}"
     cat << EOF > "${config}"
 api_token = "${API_KEY}"
-domain = "${TRAVIS_OS_NAME}.${DOMAIN}"
+domain = "${TRAVIS_OS_NAME}${TRAVIS_COMMIT}.${DOMAIN}"
 soa_email = "${EMAIL}"
 EOF
 }

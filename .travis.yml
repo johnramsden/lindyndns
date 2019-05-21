@@ -10,11 +10,19 @@ matrix:
   include:
     - os: windows
       rust: nightly
-      env: TARGET=x86_64-pc-windows-msvc
+      filter_secrets: false
+      env: 
+        - TARGET_ARCH=x86_64
+        - TARGET=x86_64-pc-windows-msvc
+        - PATH="/c/Program Files (x86)/NSIS/Bin:$PATH"
       sudo: required
     - os: windows
       rust: nightly
-      env: TARGET=i686-pc-windows-msvc
+      filter_secrets: false
+      env: 
+        - TARGET_ARCH=i686
+        - TARGET=i686-pc-windows-msvc
+        - PATH="/c/Program Files (x86)/NSIS/Bin:$PATH"
       sudo: required
     - os: linux
       dist: xenial
@@ -43,6 +51,7 @@ deploy:
   overwrite: true
   draft: true
   on:
-    branch: master
+    all_branches: true
+    # branch: master
   api_key:
     secure: uaRr+l0vYNqTetNQ/1b5qROlXLYn9yeK1KZa6SEUqC3uId/4TVxhHfGrg/7QanX0YeMxBogaWj1r2+HzO5LAsAdViMTMcGSnsXVtpz7GQzPnOc5mX9LTvF9I6OThWXhtQrtc9WNSM1jOb3kRUyBzTya4R1xuajkdFamBC3fJjR+a+FmLqgdIvAIvjMGMzBwNaC0CLIisK8hOrjMacyL7mCZzYPIWAhzalrzqzhRoSj8usp2qkZhShfwa9cheMk0z2S+KdoQVY/IEidv93TiHlfPSuuvFX03QLRe1NBGwpP7OsAuvVQ6Lv+WEvknPU4lu9OWQvcKASUdm9Pft0RfZ+ANPEhSSKvBn0zUUXqa0+/54a1ClceXw694MtTEqeikgcbm5eAEqb08/IA1rmaW123xsDX8iTzhlnpzPuR3+zPZU8EBq6sw0FGmJ/3yvMmLjTK3uM6hph6quCayOXQrWXUMO1humlBCKryGqNQthfzljhZDAnZCoMiORCZXvfQIV2fjvMxgrZLMOb29DVj2o1xn8S+Rz3ddUs3xO8b+HsCBPyu0uCK0DUJHsDi6A2pgBEtYiFV4LRU1WgHav1rtEKk7b+DOZwMpB79P0hzBW5+fMVnqXPhMucCMAj8pOhg89jW5g2+ufoyhbJCrFYiZR6251iSkxN45uBMwt0qLXaTk=
