@@ -5,6 +5,19 @@ license = "MIT"
 authors = ["John Ramsden <johnramsden@riseup.net>"]
 edition = "2018"
 
+[package.metadata.deb]
+section = "network"
+assets = [
+  ["target/x86_64-unknown-linux-gnu/release/lindyndns", "usr/bin/", "755"],
+  ["packaging/linux/lindyndns.service", "usr/lib/systemd/system/", "644"],
+  ["packaging/linux/lindyndns.timer", "usr/lib/systemd/system/", "644"],
+  ["LICENSE", "usr/share/doc/lindyndns/", "644"],
+  ["README.md", "usr/share/doc/lindyndns/README", "644"],
+]
+extended-description = """\
+Linode Dynamic DNS Client
+"""
+
 [dependencies]
 reqwest = "^0.9"
 clap = "^2.33"
@@ -13,7 +26,3 @@ toml = "^0.5"
 serde = "^1.0"
 http = "^0.1"
 serde_json = "^1.0"
-#
-#[profile.release]
-#lto = true
-#codegen-units = 1

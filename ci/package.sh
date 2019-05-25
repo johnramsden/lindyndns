@@ -21,6 +21,10 @@ linux() {
     cp "packaging/linux/${PROJECT_NAME}.timer" "${staging}"
 
     (cd "${tmpdir}" && tar czf "${out_dir}/${name}.tar.gz" "${PROJECT_NAME}")
+
+    # Build deb
+    cargo install cargo-deb
+    cargo deb --output "${out_dir}"
 }
 
 osx() {
