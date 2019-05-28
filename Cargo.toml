@@ -1,6 +1,6 @@
 [package]
 name = "lindyndns"
-version = "0.0.0"
+version = "0.1.0"
 license = "MIT"
 authors = ["John Ramsden <johnramsden@riseup.net>"]
 edition = "2018"

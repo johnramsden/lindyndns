@@ -1,6 +1,6 @@
 # lindyndns
 
-[![Build Status](https://travis-ci.com/johnramsden/lindyndns.svg?token=4X1vWwTyHTHCUwBTudyN&branch=master)](https://travis-ci.com/johnramsden/lindyndns)
+[![Build Status](https://travis-ci.com/johnramsden/lindyndns.svg?branch=master)](https://travis-ci.com/johnramsden/lindyndns)
 
 Linode Dynamic DNS Client
 
@@ -48,6 +48,31 @@ System wide:
 Running `lindyndns` will create the specified domain if the user has permissions to create a domain, otherwise an error message will be printed.
 
 If all permissions are correct, running `lindyndns` will update the specified domain, and print the IP address of the user.
+
+### Scheduling
+
+After creating configuration, start the service. The config should be system
+wide if running the system service.
+
+#### Linux
+
+``` 
+systemctl enable --now lindyndns.timer
+```
+
+#### MacOS
+
+``` 
+launchctl bootstrap system /Library/LaunchDaemons/ca.johnramsden.lindyndns.plist
+```
+
+Modify the update interval by editing `/Library/LaunchDaemons/ca.johnramsden.lindyndns.plist`.
+
+Check it's running with `launchctl list | grep lindyndns`
+
+#### Windows
+
+If installed from the `.exe` installer, a schedule of job should have been created in the windows scheduler which will run every half hour.
 
 ## Installing
 

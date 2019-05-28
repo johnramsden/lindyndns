@@ -1,29 +1,13 @@
 language: rust
 env:
   global:
-  - PROJECT_NAME=lindyndns
-  - RUST_BACKTRACE=full
-  - secure: dxDKfaOmGZM9kH7wv/W/zrLZfhMy1O8gDpti0ybbO323TI9kDW45egNzTQTwbUiYD87TawT99IC3gw9R6kok29YyHLQzhu1PNrMMEy8o+8dxoSzJnTfZY2oPy+7uqOGOKiApVJen8OI+a29/WYL9liJj5A4yXjoKMs+wa+KLxSjDaCPv3ZrEPresrk1JiTLPWWyNNCF7hR+ax/hG3EXvO+VHkkOBjodJZCgihSYmr0Y2s70cWODFCbKK5y+dnzEXMhZjR+bGUSJUmXDxkBhE1lxn7ia0d0tgEf4LM5PG2HWouA7dFgKTh35nAvQBoR2fyWDT7+pLfj/k2tmtyeJtDucbVHWVW1e/EovHfg1QsKM3rY/grWOvjkv3duZpM4Ej6Zlwd+l9iS5LaHan7h3sV+8bQLfKSZBvHcZPn89Rqih6xIsqbj4FkiC2R3CHle2dLqjd2A0VC6v7wLQ04ko4DsOlsUACMOOm2hYfMvXCqQ0FUwyUTFxYA7+gY4ebjnIh5IKYu14pPYQ4QqM/LcbM2fuRfIFWIwI5WXSWfIXJEN7smr0q/has2/YqgS+wiH7zf8VF3SKbHCKkcV1EqTsD7e0nu1KgKqdXTjYjPg4FOoRmHp/pTH+xPrCnTIjW9EHuIYmxil/PiaYcRJrLW+hOiTuxB1iNxmx+7VDcSG+xmj8=
-  - secure: UAcmn3LRK4KztAld8zChi/EobhLtiyMmvYKFQGCZ6kRTbodZNc1YG8qhho7RuF7aQaxtGX80qWzPEx8DvPE5PjFjJFUSprNe5JwXW97tMTs/3AfgkLDPMpj2EuXO6WjzsrBfv51IiXF4AYQVOULlFEoFc+NOaJAdiSge9oiaQGjo+H6pRr63KJdp25E7iN1ml5WBOBa8QckXXaAFzCrZSzBlR7g7mlk7ZoOkuSmD+/AGPQaNaX8p25ffGOOtaweADIUUBtliGYmX29IP+SM7m3ze3xRLP4doXUa3N3vmSPW9NkimB4PzPNtPuTqCWAB/rxedZGFvnVg/6dz47T95o4LO8xT010QON56ISL+sioPwQY6fhUgf/Q21v/omcyxhBkWxvSkARlFoGmyHJLVngjhIFknfk3tTWZFYywTdOmb4cfpCpLFRSFyRxQlANZQhpmXPo6djM6+mKZjMItj3uV97w/PA6fhKt6YbEL72ZNvkiPcnug2lUyHiHnIqpLJEpWJ/NsbZ4gEH03h7ykU7OLVm+DPA1c7QGaiIZUWvwVFis2mKHXvw08oy05T57/y2+fYNLp4MgRpi8aTOj42Rib8j0ef9Xo7oRPj883vHxau556uu0VWQGcM3gGpADrzswKQrUCs9RPiPgJIa6m4RYy2DesLiLuQsdAoje/hgrlQ=
-  - secure: VTycFtwBoj8oQJoqCt/jjdT0GNoUROk2imK/V4k0is+6kFWNesc9q8JAoB9kxaGWU40mLz4TMot+zSbuUMUHXks+UtVOIpKkiocRVWXRWF0ROLHMeJVJj2UI2D7HzUio9mL+Omkx2aQsUff1yguhvbvarXQr7i3r6OqzCgQ+5fZXj3AHUrVGak+MurKgRnA7yKPlFaAi0WqMrB8Hsmr44T3f4NyZrRzzrhXaCi2VRodFQq0A7cXIbqmqd8wCrzgfERgPZQacYGSTNhXFhYbMCdgNHoZDLcFOvYCgrswOjSNIj+G+25SOXszedqtj2HSKjgvffXoTgCSojSGfpM4zk5vlxd9i4Y/+yhiB07zYeeWu+ejBGHj1wXDKuWXWO1WXR+kcCqzX3Z0bvA1f5gZByXHq7eOqYcR1oU3er8hli4HS8DA7Xmi//NdRxWf+Fzy5kT5wvuT1VjMjouPQiDP/uJ49RCEhLJplzj05PcwBhPg6pZT2WuTPi6CstBS9Yf/++WVru0mQ/JJJmJcOUf8UM1KzAnIFOuwGDjFnhBM+v2ZG+fBLMs2sGIZjDB9i8FFsWMfKzxzJ9hg+OYX11VC2rBI1z6M2RUSZcN+jAxJNv7gdw9KspdX3tw3QQzJieeGbirnO7ILaEauAuxHX986LKXGbKBmF+bUmuBPwl10DDnM=
+    - PROJECT_NAME=lindyndns
+    - RUST_BACKTRACE=full
+    - secure: dv+RBCrSypg/nlaahsb1aZDWM9cyjH4I4GrhJbLuJYWZ02R/yUBCzinz0Xq7Vczz1LAj7UobEbKi+P/IK6W2/mfDblYOvoHyDh2XrPZJ7qL47sTok/IuFLWfPNiYswKbbuEeFcq7SJWUdMtyEXoi88lNolLOQUZqzdzMYgpalCSG02tjzi9oG9XG5F7i3K75Hw/dFI53SeGvXqkcS+Qy43s1iV8QoU7rpnrNqSRMZUaClfPa9nPgurJ/u4l7E68fArPiKFaf7CGuEtfMYG8j8VW5Hjivy3+mLtocD+4ZamOjy+thZcmq5RX4bydLgmHmu8XuMJIsfeer1v6CtqXid61aSwiEnSc4PAuoalsjj+6iCJUEETvRS7Iqs0SUbag4ik4wgYwP3FZtpRK5Iw+t+cpI9SWagO/CYAAzBunet/OTrTH09cuvLuSf1j4tS0m2/I62wPXh+/JcMUY3UQOjDqKRsmbzo2PQSg+E6MeZfQXe7TncCW4I0J6MMFmfw2ZkIyK6xIvT3+i5dCi5ANZTuQQ/vqpcFRqvJjV3v9ahsH1TJ+iqg0qUfz4qengsR+hhQWrRnzpbvJE0/nbiuyaL5+DKrqunCTjL5ii+7fbPui6hnWFKStKYQPvvkrWVJE57TvGZ73Rf0oeFDWzghLXCp+AKbJ6cLipsANTwlR0ZMZI=
+    - secure: jZc4fOWYRr8w7hYZyqd4Q7TChcEe2Mh/xg7wH698ifwQm80IHLY6CtQBHi2fTyndAeNej+x7vFUz4bxzVj66BVI9576pvuOCWqAGWVHnnPezEPEcnB4cyByaQigIG16GQ/0XKcVK5pZebbUcDW1eE59h+hc9puKow9DPg4Jsedvv7r6F9ObNyOgR0r9vMRC/nHlUCm1LjO2PgsTg8Ae4bskiH92XGME6OI0Xh1c2e4gJaJyaR6vR8wAW6pCaRtLRYzO98EISn2LyD10rjfA4H5HbosQZ4YcyuYnZLAVVBW7Fx+nJ8DNVbxYYuBtbM9tSE8/BNJVAKSP/mcwCGczkydcmAfibcFGauypb4m+wUD4a1V84T5Y9xewgOGcUeN+wJkAt7t5PxkL3hcFc1oYXl+hv0GvUl60kmA7Nr1qzuCrWhZUR8sRzTlnVVkkF7bTmN2t1SuUol/Ygq2IQUp0QuIupA9nrHic753ieUXhjjdOicKVkt+AsM00kv18P3kEqrtgcXzu/1QKTKQgGkZe5oMSdERPAmlxHVkQjtavvUaUd3HHvLo+MPOIyMfWxgeKBeyB86U2hMU55bQwTPfUCblyoOV3bNVkX/isOZqWYu+gO8r5zErzhgFWSBaOeKoEoLHwFckGAmRrBM8y28yZU0ap79TAh9O4wpaPAbKLOPlo=
+    - secure: i8x/oSO7h4wSUuq0ZRsxzMe7PWtu4+BeCf10OS0TglGOxQJ78pYj6J4L1nR37aqoi9xDBB5dqarXsddXtQQX76fbSJ3K0BcNVEWlNm6K0nCPctOtH4hCVXZ603paqgV/vbv8R+RnvJVqogJM6WO3Xh/OAgUUi/aFIkZ1oV3gbhQhluFvAO0pO2WOSiT9q6RH7/AlXGGVqB3eVlF185FTsUBl3i5UqkPqWW1ZameJmKfgJhVQOQ7ONfrApyX8qV5SiR5shBi09bodcHLikP1JWHjOm1nFaDKSEf8nJ7UpueOCGodqltKiYzGG+OE/DDoFmQ7gmQ0g7IkwPfsOR5uXe0PlPCYfxLh3XpOD0tCfsY8gH5ilA0BB6Z4Pmc7DQCHSwNvXOEaFgA+S3TIXHKVjskuv3RGEJZ//BiRNWX8gJrFVqfiKhBJFGl9QvtCCVeYDUz69CNbkS0Fv7mpFKM6Cp39l8xCDt0IRZRQGV7+31ZL8zVv1a7/KqoN5IE1jxCSSTUkYjMedlZGosuobgFpkPlSgNu6dvaIPsD0/3BM7VVpQvwVhlJt0xKuVaYJUOfBNQKax/ZABmRcGCTv5gGuKrmGwomZ6MNN5gA9cbq8jkOUlOzAMAevV6/35KENKObEYGHDe23tT+1LOvFSeyqQscK29dgu+ItgD1qYufrcsR0k=
 matrix:
   include:
-    - os: windows
-      rust: nightly
-      filter_secrets: false
-      env: 
-        - TARGET_ARCH=x86_64
-        - TARGET=x86_64-pc-windows-msvc
-        - PATH="/c/Program Files (x86)/NSIS/Bin:$PATH"
-      sudo: required
-    - os: windows
-      rust: nightly
-      filter_secrets: false
-      env: 
-        - TARGET_ARCH=i686
-        - TARGET=i686-pc-windows-msvc
-        - PATH="/c/Program Files (x86)/NSIS/Bin:$PATH"
-      sudo: required
     - os: linux
       dist: xenial
       rust: nightly
@@ -32,12 +16,27 @@ matrix:
       rust: nightly
       env: TARGET=x86_64-apple-darwin
       sudo: required
+    - os: windows
+      rust: nightly
+      filter_secrets: false
+      env:
+        - TARGET_ARCH=x86_64
+        - TARGET=x86_64-pc-windows-msvc
+        - PATH="/c/Program Files (x86)/NSIS/Bin:$PATH"
+      sudo: required
+    - os: windows
+      rust: nightly
+      filter_secrets: false
+      env:
+        - TARGET_ARCH=i686
+        - TARGET=i686-pc-windows-msvc
+        - PATH="/c/Program Files (x86)/NSIS/Bin:$PATH"
+      sudo: required
 script:
-  - "ci/build.sh"
-  - "ci/test.sh"
+  - ci/build.sh
+  - ci/test.sh
 before_deploy:
-  - "ci/package.sh"
-  - export TRAVIS_TAG="preview"
+  - ci/package.sh
 cache:
   directories:
     - "${HOME}/.cargo"
@@ -51,7 +50,7 @@ deploy:
   overwrite: true
   draft: true
   on:
-    all_branches: true
-    # branch: master
+    branch: master
+    tags: true
   api_key:
-    secure: uaRr+l0vYNqTetNQ/1b5qROlXLYn9yeK1KZa6SEUqC3uId/4TVxhHfGrg/7QanX0YeMxBogaWj1r2+HzO5LAsAdViMTMcGSnsXVtpz7GQzPnOc5mX9LTvF9I6OThWXhtQrtc9WNSM1jOb3kRUyBzTya4R1xuajkdFamBC3fJjR+a+FmLqgdIvAIvjMGMzBwNaC0CLIisK8hOrjMacyL7mCZzYPIWAhzalrzqzhRoSj8usp2qkZhShfwa9cheMk0z2S+KdoQVY/IEidv93TiHlfPSuuvFX03QLRe1NBGwpP7OsAuvVQ6Lv+WEvknPU4lu9OWQvcKASUdm9Pft0RfZ+ANPEhSSKvBn0zUUXqa0+/54a1ClceXw694MtTEqeikgcbm5eAEqb08/IA1rmaW123xsDX8iTzhlnpzPuR3+zPZU8EBq6sw0FGmJ/3yvMmLjTK3uM6hph6quCayOXQrWXUMO1humlBCKryGqNQthfzljhZDAnZCoMiORCZXvfQIV2fjvMxgrZLMOb29DVj2o1xn8S+Rz3ddUs3xO8b+HsCBPyu0uCK0DUJHsDi6A2pgBEtYiFV4LRU1WgHav1rtEKk7b+DOZwMpB79P0hzBW5+fMVnqXPhMucCMAj8pOhg89jW5g2+ufoyhbJCrFYiZR6251iSkxN45uBMwt0qLXaTk=
+    secure: CpPhIAZD4yquhISO8VENFpyIUvvWM6UyO5tulPyezsDXr9aeD9QXTLOcDwLU2GnwoHOMeNjB6EsBT82oh/Zdr2246aNwVmCFSdmXzSUyK/k2485f4T0H3AyTJtPFcybynTBgnUSTzMoz7cRWCi2q6T7qKQTpVfv7R5NwQYrilNyrlQCEtL8BooSuMqUqdxVbdv5h006jxKRuayn+IvmvmjohLCmt279Tsa5Fl29TDWA3kwQCMbtswNPaNeA9V6LlHkAfmMq3/HLwTcZA+aCmGPd0qmGKB/ghwqUhKm0vU+2NjGyUFq8KDc/vxl9XDJtVYotB3PjPASKyUk4cAw4dwAbIAqMovfnB0RFDDQPBCgjyceO0+SpNjwn50P67Q9RXyRIi+W0I+qekontkIO/a1o5ZAV886W35sNBMtjUwjhDVmqYI9cvH3Tn0kb0Ia2we8fIhYRVzzHe09H2Nh+6BMIk9aziGegSuD8R3XqKCnazy1jhszcNBvRKmE7m7OkXl1hMnZMg7rtjTjGlL+NJ/pkumUkdCoKqaI02zuYqPECaSDeCrNLbU8XIdkW4huhcXE8ufxNgvxmFmzh0HQA09xSLOLNDTRRaiWW3rncv4zxI1KSUDudcOnF9rcSlcggJzKfu3uhAEVwhnwoKEb9izceFb7DKk8fzANexnkAm4aek=

@@ -9,7 +9,7 @@ use lindyndns::{run, find_config, expected_config_location};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let matches = App::new("lindyndns")
-        .version("0.0.0")
+        .version("0.1.0")
         .author("John Ramsden <johnramsden@riseup.net>")
         .about("Linode Dynamic DNS Client")
         .arg(

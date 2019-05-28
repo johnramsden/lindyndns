@@ -6,9 +6,9 @@ set -e
 
 tmpdir="$(mktemp -d)"
 
-[ -n "${TRAVIS_TAG}" ] && tag="-${TRAVIS_TAG}" || tag="-0.0.0"
+if [ -n "${TRAVIS_TAG}" ]; then version="${TRAVIS_TAG}"; else version="0.0.0"; fi
 
-name="${PROJECT_NAME}${tag}-${TARGET}"
+name="${PROJECT_NAME}-${version}-${TARGET}"
 staging="${tmpdir}/${PROJECT_NAME}"
 
 out_dir="$(pwd)/deployment"
@@ -32,6 +32,7 @@ osx() {
     cd munkipkg
 
     cp -r "${TRAVIS_BUILD_DIR}/packaging/macos/munkipkg/lindyndns" lindyndns
+    echo "version: '${version}'" >> lindyndns/build-info.yaml
 
     payload="lindyndns/payload"
     plist='ca.johnramsden.lindyndns.plist'
@@ -43,7 +44,6 @@ osx() {
 
     cp "${staging}/lindyndns" "${bindir}"
     cp "${TRAVIS_BUILD_DIR}/packaging/macos/${plist}" "${launch_daemons}"
-
 
     (
         python3 -m venv venv && . venv/bin/activate && \
@@ -70,7 +70,7 @@ windows() {
         
         cd "nsis"
         makensis.exe "installer_${TARGET_ARCH}.nsi"
-        cp "lindyndns_setup_${TARGET_ARCH}.exe" "${out_dir}"
+        cp "lindyndns_setup_${TARGET_ARCH}.exe" "${out_dir}/lindyndns-${version}_setup_${TARGET_ARCH}.exe"
     )
 
 }

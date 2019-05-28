@@ -38,7 +38,7 @@ pub fn expected_config_location() -> (String, String) {
     } else if cfg!(target_os = "macos") {
         (
             String::from("/Library/Preferences/lindyndns/config.toml"),
-            String::from("~/Library/Preferences//lindyndns/config.toml")
+            String::from("~/Library/Preferences/lindyndns/config.toml")
         )
     } else {
         (
