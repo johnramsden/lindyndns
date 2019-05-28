@@ -29,6 +29,25 @@ impl fmt::Display for MyError {
 
 impl std::error::Error for MyError {}
 
+pub fn expected_config_location() -> (String, String) {
+    if cfg!(target_os = "windows") {
+        (
+            String::from("%APPDATA%\\lindyndns\\config.toml"),
+            String::from("%LOCALAPPDATA%\\lindyndns\\config.toml")
+        )
+    } else if cfg!(target_os = "macos") {
+        (
+            String::from("/Library/Preferences/lindyndns/config.toml"),
+            String::from("~/Library/Preferences//lindyndns/config.toml")
+        )
+    } else {
+        (
+            String::from("/etc/xdg/lindyndns/config.toml"),
+            String::from("$XDG_CONFIG_HOME/lindyndns/config.toml")
+        )
+    }
+}
+
 fn find_config_from_env(env: &str, suffix: &Vec<&str>) -> Option<PathBuf> {
     match std::env::var(env) {
         Ok(val) => {

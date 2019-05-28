@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::process;
 
 use clap::{App, Arg};
-use lindyndns::{run, find_config};
+use lindyndns::{run, find_config, expected_config_location};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let matches = App::new("lindyndns")
@@ -30,7 +30,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Ok(c) => match c {
                     Some(c) => c,
                     None => {
+                        let conf_expected = expected_config_location();
                         eprintln!("No config file found in system or user directories.");
+                        eprintln!("{} or {}", conf_expected.0, conf_expected.1);
                         process::exit(1);
                     },
                 },
