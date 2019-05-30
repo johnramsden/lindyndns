@@ -88,6 +88,27 @@ Several pre-built packages are available depending on the platform under the [re
     * zip archive
     * `.exe` installer
 
+## Building
+
+Clone the repo.
+
+With rust and cargo installed run:
+
+```
+cargo build --release
+```
+
+FreeBSD example:
+
+```
+pkg install rust git
+git clone https://github.com/johnramsden/lindyndns.git
+cd lindyndns
+cargo build --release
+```
+
+The binary will be at `target/release/lindyndns`. Move it to `/usr/local/bin/lindyndns`, add a configfile to `/etc/xdg/lindyndns/config.toml` and create a crontab entry to run `lindyndns` regularly.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
