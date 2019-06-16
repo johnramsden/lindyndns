@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::process;
 
 use clap::{App, Arg};
-use lindyndns::{run, find_config, expected_config_location};
+use lindyndns::{expected_config_location, find_config, run};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let matches = App::new("lindyndns")
@@ -34,28 +34,28 @@ fn main() -> Result<(), Box<dyn Error>> {
                         eprintln!("No config file found in system or user directories.");
                         eprintln!("{} or {}", conf_expected.0, conf_expected.1);
                         process::exit(1);
-                    },
+                    }
                 },
                 Err(e) => {
                     eprintln!("Error occurred looking for config file");
                     return Err(e);
-                },
+                }
             }
-        },
+        }
     };
     let config_file = match config_file.to_str() {
         Some(c) => c,
         None => {
             eprintln!("Config file is invalid unicode.");
             process::exit(1);
-        },
+        }
     };
 
     match run(config_file) {
         Err(e) => {
             eprintln!("{}", e.to_string());
             process::exit(1);
-        },
-        Ok(_e) => Ok(())
+        }
+        Ok(_e) => Ok(()),
     }
 }

@@ -1,15 +1,15 @@
-extern crate toml;
 extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
+extern crate toml;
 
 use serde_derive::Deserialize;
-use std::{fs, str, fmt};
 use std::error::Error;
 use std::path::PathBuf;
+use std::{fmt, fs, str};
 
 mod linode;
-use linode::client::{Domain,Record};
+use linode::client::{Domain, Record};
 
 #[derive(Deserialize)]
 struct Config {
@@ -33,17 +33,17 @@ pub fn expected_config_location() -> (String, String) {
     if cfg!(target_os = "windows") {
         (
             String::from("%APPDATA%\\lindyndns\\config.toml"),
-            String::from("%LOCALAPPDATA%\\lindyndns\\config.toml")
+            String::from("%LOCALAPPDATA%\\lindyndns\\config.toml"),
         )
     } else if cfg!(target_os = "macos") {
         (
             String::from("/Library/Preferences/lindyndns/config.toml"),
-            String::from("~/Library/Preferences/lindyndns/config.toml")
+            String::from("~/Library/Preferences/lindyndns/config.toml"),
         )
     } else {
         (
             String::from("/etc/xdg/lindyndns/config.toml"),
-            String::from("$XDG_CONFIG_HOME/lindyndns/config.toml")
+            String::from("$XDG_CONFIG_HOME/lindyndns/config.toml"),
         )
     }
 }
@@ -59,7 +59,7 @@ fn find_config_from_env(env: &str, suffix: &Vec<&str>) -> Option<PathBuf> {
             }
 
             None
-        },
+        }
         Err(_v) => None,
     }
 }
@@ -116,7 +116,7 @@ fn find_system_config_unix(prefix_directory: &Vec<&str>) -> Option<PathBuf> {
                 }
             }
             check_path_exists(default_path)
-        },
+        }
         Err(_v) => check_path_exists(default_path),
     };
 
@@ -124,7 +124,6 @@ fn find_system_config_unix(prefix_directory: &Vec<&str>) -> Option<PathBuf> {
 }
 
 fn find_config_unix() -> Option<PathBuf> {
-
     let config_path: Option<PathBuf> = match find_user_config_unix(&vec![".config"]) {
         Some(val) => Some(val),
         None => find_system_config_unix(&vec!["/", "etc", "xdg"]),
@@ -143,7 +142,6 @@ fn find_config_macos() -> Option<PathBuf> {
     };
 
     config_path
-
 }
 
 pub fn find_config() -> Result<Option<PathBuf>, Box<Error>> {
@@ -159,13 +157,15 @@ pub fn find_config() -> Result<Option<PathBuf>, Box<Error>> {
 }
 
 fn read_config(config_file: &str) -> Result<Config, String> {
-
     // println!("{:?}", find_config());
 
     let file_data = match fs::read(&config_file) {
         Ok(f) => f,
         Err(f) => {
-            return Err(format!("Failed to read config file '{}', {}", config_file, f))
+            return Err(format!(
+                "Failed to read config file '{}', {}",
+                config_file, f
+            ))
         }
     };
 
@@ -176,7 +176,6 @@ fn read_config(config_file: &str) -> Result<Config, String> {
 }
 
 fn find_domain(domains: Vec<Domain>, config: &Config) -> Option<Domain> {
-
     for d in domains {
         if d.domain == config.domain {
             return Some(d);
@@ -186,9 +185,7 @@ fn find_domain(domains: Vec<Domain>, config: &Config) -> Option<Domain> {
     None
 }
 
-fn find_record(records: Vec<Record>, record_type: &str,
-               record_name: &str) -> Option<Record> {
-
+fn find_record(records: Vec<Record>, record_type: &str, record_name: &str) -> Option<Record> {
     for r in records {
         if r.name == record_name && r.record_type == record_type {
             return Some(r);
@@ -199,7 +196,6 @@ fn find_record(records: Vec<Record>, record_type: &str,
 }
 
 pub fn run(config_file: &str) -> Result<(), Box<Error>> {
-
     let config = read_config(config_file)?;
 
     let linode_client = linode::client::Client::new(config.api_token.clone());
@@ -226,20 +222,27 @@ pub fn run(config_file: &str) -> Result<(), Box<Error>> {
     let domain = find_domain(domains, &config);
     let domain_data = match domain {
         Some(data) => data,
-        None => {
-            match linode_client.create_domain(&create_domain) {
-                Ok(d) => d,
-                Err(_d) => return Err(Box::new(MyError(
-                    format!("{} '{}' \n{}", "Couldn't find or create domain",
-                    config.domain, "Create it manually or check token permissions.")))),
+        None => match linode_client.create_domain(&create_domain) {
+            Ok(d) => d,
+            Err(_d) => {
+                return Err(Box::new(MyError(format!(
+                    "{} '{}' \n{}",
+                    "Couldn't find or create domain",
+                    config.domain,
+                    "Create it manually or check token permissions."
+                ))))
             }
         },
     };
 
     let records = match domain_data.id {
         Some(id) => linode_client.list_records(&id),
-        None => return Err(Box::new(MyError(
-                        format!("{} '{}'.", "Missing domain id for", config.domain)))),
+        None => {
+            return Err(Box::new(MyError(format!(
+                "{} '{}'.",
+                "Missing domain id for", config.domain
+            ))))
+        }
     }?;
 
     let record = Record {
@@ -258,25 +261,20 @@ pub fn run(config_file: &str) -> Result<(), Box<Error>> {
 
     match find_record(records, "A", "") {
         Some(r) => {
-            match linode_client.update_record(
-                &record, &domain_data.id.unwrap(), &r.id.unwrap()) {
+            match linode_client.update_record(&record, &domain_data.id.unwrap(), &r.id.unwrap()) {
                 Ok(r) => {
                     println!("{}", r.target.unwrap());
                     Ok(())
-                },
+                }
                 Err(_r) => Err(Box::new(MyError("Failed record update".to_string()))),
             }
-        },
-        None => {
-            match linode_client.create_record(&record, &domain_data.id.unwrap()) {
-                Ok(r) => {
-                    println!("{}", r.target.unwrap());
-                    Ok(())
-                },
-                Err(_r) => Err(Box::new(MyError("Failed to create record".to_string()))),
+        }
+        None => match linode_client.create_record(&record, &domain_data.id.unwrap()) {
+            Ok(r) => {
+                println!("{}", r.target.unwrap());
+                Ok(())
             }
+            Err(_r) => Err(Box::new(MyError("Failed to create record".to_string()))),
         },
     }
-
-
 }
